@@ -14,7 +14,7 @@ data <- mclapply(dataset, read_excel)
 
 MI.MICE <- function(dataset){
   
-  #1 Delete unnecessary variables
+  #1 delete unnecessary variables
   dataset$diff_Y <- NULL
   dataset$diff_cost <- NULL
   dataset$M <- NULL
@@ -23,13 +23,13 @@ MI.MICE <- function(dataset){
   dataset$Y <- NULL
   dataset$cost <- NULL
   
-  #2 Split dataset by treatment group 
+  #2 split dataset by treatment group 
   Tr0 <- subset(dataset, treatment==0)
   Tr1 <- subset(dataset, treatment==1)
   
-  #3 Create a customized predictor matrix
-  #The variables in the columns are used to impute the row variables. 
-  #The imputation model includes the confounders and predictors of missing data
+  #3 create a customized predictor matrix
+  #the variables in the columns are used to impute the variables in the rows. 
+  #the imputation model includes the confounders and predictors of missing data
   #(i.e.., age, rom, depression) and
   #outcome variables: Y_mw, cost_mw
   predMat <- make.predictorMatrix(dataset)
@@ -39,21 +39,21 @@ MI.MICE <- function(dataset){
   predMat[,'Y_mw'] <- 1
   predMat[,'cost_mw'] <- 1
   
-  #4 Perform MI procedure by Tr and combine them
+  #4 perform MI procedure by Tr and combine them
   imp.Tr0 <- mice(Tr0, m=5, method="pmm", predictorMatrix = predMat, seed = 1234, printFlag = FALSE)
   imp.Tr1 <- mice(Tr1, m=5, method="pmm", predictorMatrix = predMat, seed = 1234, printFlag = FALSE)
   
-  #5 Merge and stack imputed datasets per treatment group
+  #5 merge and stack imputed datasets per treatment group
   imp <- rbind(imp.Tr0, imp.Tr1)
   impdat <- complete(imp, action = "long", include = FALSE)
   
-  #6 Store imputed datasets in a list
+  #6 store imputed datasets in a list
   impdata <- split(impdat, f = impdat$.imp)
   
-  #7 Extract the number of imputations to be used in Rubin's rules
+  #7 extract the number of imputations to be used in Rubin's rules
   M <- imp[["m"]]
   
-  #8 Fit seemingly unrelated regressions model in each imputed dataset stored in impdata (SUR)
+  #8 fit seemingly unrelated regressions model in each imputed dataset stored in impdata (SUR)
   r1 <- cost_mw ~ treatment + age + rom + depression
   r2 <- Y_mw ~ treatment + age + rom + depression
   sur <- lapply(impdata, function(x) {systemfit(list(costreg = r1, effectreg = r2), "SUR", data=x)})
@@ -122,7 +122,7 @@ mi_mice <- lapply(data,MI.MICE)
 
 for (i in 1:10) {
   
-  write_xlsx(mi_mice[[i]], paste0("C:/Users/aegue/Documents/HTA PhD/Missing Data Simulation/R codes/Time to Get Real/Data/HY_HC/MISSING10/MI_M10_HL",i,".xlsx"))
+  write_xlsx(mi_mice[[i]], paste0("C:/Users/aegue/Documents/HTA PhD/Missing Data Simulation/R codes/Time to Get Real/Data/HY_HC/MISSING10/MI_MICE_M10_HL",i,".xlsx"))
 }
 
 Sys.time() - mi_mice_time # total time
