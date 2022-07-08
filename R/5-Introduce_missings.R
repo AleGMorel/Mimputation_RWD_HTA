@@ -22,8 +22,8 @@ MISSING10 <- function(ds){
   
   ###Scenario 1: MAR assumption###
   #Missing data indicator, using ROM as a confounder
-  missing_p_Y <- inv_logit(-4 + 0.01*ds$rom + 0.02*ds$age + 0.02*ds$gender) # probability of missing in outcome
-  missing_p_cost <- inv_logit(-3 + 0.01*ds$rom + 0.02*ds$age + 0.02*ds$gender) #probability of missing in costs
+  missing_p_Y <- inv_logit(-6 + 0.01*ds$rom + 0.02*ds$age + 0.02*ds$gender + 0.08*ds$Y + 0.05*ds$treatment) # probability of missing in outcome
+  missing_p_cost <- inv_logit(-5 + 0.01*ds$rom + 0.02*ds$age + 0.02*ds$gender + 0.08*ds$Y + 0.05*ds$treatment) #probability of missing in costs
   ds$missing_Y <- rbinom(n, 1, missing_p_Y) #creating binary missing data indicator 
   ds$missing_cost <- rbinom(n, 1, missing_p_cost)
   
@@ -35,7 +35,7 @@ MISSING10 <- function(ds){
   
   #check proportion of missing data
   ds$M <- as.integer(complete.cases(ds))
-  descr(ds$M) # mean represents the proportion of complete data ~90% or 10% missing data
+  descr(ds$M) # mean represents the proportion of complete data ~90% or 10% missing  data
   
   ds <- as.data.frame(ds)
 }
