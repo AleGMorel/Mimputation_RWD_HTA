@@ -5,12 +5,16 @@ library(readxl)   #required to read the imported excel ds
 library(parallel) # required for the mclapply function
 library(descr)    # required to describe data
 library(mice)     # required to impute data
+library(systemfit)#required to fit SUR model
 
 ## Import datasets
-dataset <- paste0("C:/Users/aegue/Documents/HTA PhD/Missing Data Simulation/R codes/Time to Get Real/Data/HY_HC/MISSING10/M10_HL",1:10,".xlsx")
+dataset <- paste0("C:/Users/aegue/Documents/HTA PhD/Missing Data Simulation/R codes/Time to Get Real/Data/HY_HC/MISSING10/M10_HL",1:20,".xlsx")
 data <- mclapply(dataset, read_excel)
 
 ## Multiple imputation: MICE procedure
+library(readxl)
+M10_HL1 <- read_excel("~/HTA PhD/Missing Data Simulation/R codes/Time to Get Real/Data/HY_HC/MISSING10/M10_HL1.xlsx")
+dataset<- M10_HL1
 
 MI.MICE <- function(dataset){
   
@@ -22,6 +26,8 @@ MI.MICE <- function(dataset){
   dataset$missing_Y <- NULL
   dataset$Y <- NULL
   dataset$cost <- NULL
+  dataset$diff_Y_miss <- NULL
+  dataset$diff_cost_miss <- NULL
   
   #2 split dataset by treatment group 
   Tr0 <- subset(dataset, treatment==0)
@@ -33,11 +39,17 @@ MI.MICE <- function(dataset){
   #(i.e.., age, rom, depression) and
   #outcome variables: Y_mw, cost_mw
   predMat <- make.predictorMatrix(dataset)
-  predMat[,'treatment'] <- 0
-  predMat[,'leefbar'] <- 0
-  predMat[,'gender'] <- 0
-  predMat[,'Y_mw'] <- 1
-  predMat[,'cost_mw'] <- 1
+  predMat[,] <- 0
+  predMat['Y_miss','age'] <- 1
+  predMat['cost_miss','age'] <- 1
+  predMat['Y_miss','rom'] <- 1
+  predMat['cost_miss','rom'] <- 1
+  predMat['Y_miss','depression'] <- 1
+  predMat['cost_miss','depression'] <- 1
+  predMat['Y_miss','Y_miss'] <- 1
+  predMat['Y_miss','cost_miss'] <- 1
+  predMat['cost_miss','cost_miss'] <- 1
+  predMat['cost_miss','Y_miss'] <- 1
   
   #4 perform MI procedure by Tr and combine them
   imp.Tr0 <- mice(Tr0, m=5, method="pmm", predictorMatrix = predMat, seed = 1234, printFlag = FALSE)
@@ -54,8 +66,8 @@ MI.MICE <- function(dataset){
   M <- imp[["m"]]
   
   #8 fit seemingly unrelated regressions model in each imputed dataset stored in impdata (SUR)
-  r1 <- cost_mw ~ treatment + age + rom + depression
-  r2 <- Y_mw ~ treatment + age + rom + depression
+  r1 <- cost_miss ~ treatment + age + rom + depression
+  r2 <- Y_miss ~ treatment + age + rom + depression
   sur <- lapply(impdata, function(x) {systemfit(list(costreg = r1, effectreg = r2), "SUR", data=x)})
   
   #9 extract betas for costs and effects
@@ -98,17 +110,17 @@ MI.MICE <- function(dataset){
   colnames(var_pooled)  <- c("var_cost","var_effect")
   
   #15 estimate lower and upper confidence interval limits for costs and effects using Rubin's rules
-  Za = 1.95996
-  dataset$cost_diff <- pooled[1]
+  Za = 1.95996 #z-score
+  dataset$cost_diff_pooled <- pooled[1]
   dataset$LL_cost_pooled <- pooled[1] - (Za*sqrt(var_pooled[1,1])) # lower-limit of the 95% CI for costs
   dataset$UL_cost_pooled <- pooled[1] + (Za*sqrt(var_pooled[1,1])) # upper-limit of the 95% CI for costs
-  dataset$effect_diff <- pooled[2]
-  dataset$LL_effect_pooled <- pooled[2] - (Za*sqrt(var_pooled[2,2])) # lower-limit of the 95% CI for QALY
-  dataset$UL_effect_pooled <- pooled[2] + (Za*sqrt(var_pooled[2,2])) # upper-limit of the 95% CI for QALY
+  dataset$effect_diff_pooled <- pooled[2]
+  dataset$LL_effect_pooled <- pooled[2] - (Za*sqrt(var_pooled[2,2])) # lower-limit of the 95% CI for effects
+  dataset$UL_effect_pooled <- pooled[2] + (Za*sqrt(var_pooled[2,2])) # upper-limit of the 95% CI for effects
   
   #16 loss of efficiency
-  FMI = B/(B + W)
-  LE = FMI/M
+  FMI = B/(B + W) #fraction of missing information
+  LE = FMI/M #loss of efficiency
   dataset$LE_cost <- LE[1,1]
   dataset$LE_effect <- LE[2,2]
   
