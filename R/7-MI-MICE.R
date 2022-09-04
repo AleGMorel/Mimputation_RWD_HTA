@@ -5,14 +5,24 @@ library(readxl)   #required to read the imported excel ds
 library(parallel) # required for the mclapply function
 library(descr)    # required to describe data
 library(mice)     # required to impute data
+<<<<<<< HEAD:R/7-MI-MICE.R
 library(systemfit)  # required to run seemingly unrelated regression
 library(tidyverse)  # required for data manipulation
 
 ## Import datasets
 dataset <- paste0("C:/Users/Angela/Documents/2022-Ale-projects/project-1/data/HY_HC/MISSING10/M10_HL",1:10,".xlsx")
+=======
+library(systemfit)#required to fit SUR model
+
+## Import datasets
+dataset <- paste0("C:/Users/aegue/Documents/HTA PhD/Missing Data Simulation/R codes/Time to Get Real/Data/HY_HC/MISSING10/M10_HL",1:20,".xlsx")
+>>>>>>> 784c7942a26b4793958b6064bba29a27471a3b07:R/6-MI-MICE.R
 data <- mclapply(dataset, read_excel)
 
 ## Multiple imputation: MICE procedure
+library(readxl)
+M10_HL1 <- read_excel("~/HTA PhD/Missing Data Simulation/R codes/Time to Get Real/Data/HY_HC/MISSING10/M10_HL1.xlsx")
+dataset<- M10_HL1
 
 MI.MICE <- function(dataset){
   
@@ -24,6 +34,8 @@ MI.MICE <- function(dataset){
   dataset$missing_Y <- NULL
   dataset$Y <- NULL
   dataset$cost <- NULL
+  dataset$diff_Y_miss <- NULL
+  dataset$diff_cost_miss <- NULL
   
   #2 Split dataset by treatment group 
   Tr0 <- subset(dataset, treatment==0)
@@ -35,11 +47,17 @@ MI.MICE <- function(dataset){
   #(i.e.., age, rom, depression) and
   #outcome variables: Y_mw, cost_mw
   predMat <- make.predictorMatrix(dataset)
-  predMat[,'treatment'] <- 0
-  predMat[,'leefbar'] <- 0
-  predMat[,'gender'] <- 0
-  predMat[,'Y_mw'] <- 1
-  predMat[,'cost_mw'] <- 1
+  predMat[,] <- 0
+  predMat['Y_miss','age'] <- 1
+  predMat['cost_miss','age'] <- 1
+  predMat['Y_miss','rom'] <- 1
+  predMat['cost_miss','rom'] <- 1
+  predMat['Y_miss','depression'] <- 1
+  predMat['cost_miss','depression'] <- 1
+  predMat['Y_miss','Y_miss'] <- 1
+  predMat['Y_miss','cost_miss'] <- 1
+  predMat['cost_miss','cost_miss'] <- 1
+  predMat['cost_miss','Y_miss'] <- 1
   
   #4 Perform MI procedure by Tr and combine them
   imp.Tr0 <- mice(Tr0, m=5, method="pmm", predictorMatrix = predMat, seed = 1234, printFlag = FALSE)
@@ -55,9 +73,15 @@ MI.MICE <- function(dataset){
   #7 Extract the number of imputations to be used in Rubin's rules
   M <- imp[["m"]]
   
+<<<<<<< HEAD:R/7-MI-MICE.R
   #8 Fit seemingly unrelated regressions model in each imputed dataset stored in impdata (SUR)
   r1 <- cost_mw ~ treatment + age + rom + depression
   r2 <- Y_mw ~ treatment + age + rom + depression
+=======
+  #8 fit seemingly unrelated regressions model in each imputed dataset stored in impdata (SUR)
+  r1 <- cost_miss ~ treatment + age + rom + depression
+  r2 <- Y_miss ~ treatment + age + rom + depression
+>>>>>>> 784c7942a26b4793958b6064bba29a27471a3b07:R/6-MI-MICE.R
   sur <- lapply(impdata, function(x) {systemfit(list(costreg = r1, effectreg = r2), "SUR", data=x)})
   
   #9 Extract betas for costs and effects
@@ -99,6 +123,7 @@ MI.MICE <- function(dataset){
   var_pooled <- (1 + 1/M) * B + W
   colnames(var_pooled)  <- c("var_cost","var_effect")
   
+<<<<<<< HEAD:R/7-MI-MICE.R
   #15 Estimate lower and upper confidence interval limits for costs and effects using Rubin's rules
   Za = 1.95996
   dataset$cost_diff <- pooled[1]
@@ -112,6 +137,20 @@ MI.MICE <- function(dataset){
   #16 Loss of efficiency
   FMI = B/(B + W)
   LE = FMI/M
+=======
+  #15 estimate lower and upper confidence interval limits for costs and effects using Rubin's rules
+  Za = 1.95996 #z-score
+  dataset$cost_diff_pooled <- pooled[1]
+  dataset$LL_cost_pooled <- pooled[1] - (Za*sqrt(var_pooled[1,1])) # lower-limit of the 95% CI for costs
+  dataset$UL_cost_pooled <- pooled[1] + (Za*sqrt(var_pooled[1,1])) # upper-limit of the 95% CI for costs
+  dataset$effect_diff_pooled <- pooled[2]
+  dataset$LL_effect_pooled <- pooled[2] - (Za*sqrt(var_pooled[2,2])) # lower-limit of the 95% CI for effects
+  dataset$UL_effect_pooled <- pooled[2] + (Za*sqrt(var_pooled[2,2])) # upper-limit of the 95% CI for effects
+  
+  #16 loss of efficiency
+  FMI = B/(B + W) #fraction of missing information
+  LE = FMI/M #loss of efficiency
+>>>>>>> 784c7942a26b4793958b6064bba29a27471a3b07:R/6-MI-MICE.R
   dataset$LE_cost <- LE[1,1]
   dataset$LE_effect <- LE[2,2]
   
