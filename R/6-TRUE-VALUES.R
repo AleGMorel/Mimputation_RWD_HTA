@@ -42,6 +42,8 @@ SUR <- function(dataset){
   dataset$UL_cost_pooled <- dataset$cost_diff + (Za*sqrt(var_cost)) # upper-limit of the 95% CI for costs
   dataset$LL_effect_pooled <- dataset$effect_diff - (Za*sqrt(var_effect)) # lower-limit of the 95% CI for QALY
   dataset$UL_effect_pooled <- dataset$effect_diff + (Za*sqrt(var_effect)) # upper-limit of the 95% CI for QALY
+  dataset$se_cost <- sqrt(var_cost)
+  dataset$se_effect <- sqrt(var_effect)
   
   dataset <- as.data.frame(dataset)
   

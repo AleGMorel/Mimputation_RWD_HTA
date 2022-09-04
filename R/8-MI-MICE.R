@@ -111,6 +111,8 @@ MI.MICE <- function(dataset){
   dataset$LL_effect_pooled <- pooled[2] - (Za*sqrt(var_pooled[2,2])) # lower-limit of the 95% CI for QALY
   dataset$UL_effect_pooled <- pooled[2] + (Za*sqrt(var_pooled[2,2])) # upper-limit of the 95% CI for QALY
   dataset$ICER <- dataset$cost_diff/dataset$effect_diff
+  dataset$se_cost <- sqrt(var_pooled[1,1])
+  dataset$se_effect <- sqrt(var_pooled[2,2])
   
   #16 Loss of efficiency
   FMI = B/(B + W)

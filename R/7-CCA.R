@@ -38,7 +38,7 @@ CCA <- function(dataset){
   dataset$effect_diff <- fitsur[["coefficients"]][["effectreg_treatment"]]
   dataset$ICER <- dataset$cost_diff/dataset$effect_diff
   
-  #4 Extract variance
+  #4 Extract variance to estimate standard errors
   varcov <- fitsur[["coefCov"]]
   var_cost <- fitsur[["coefCov"]][[2,2]]
   var_effect <- fitsur[["coefCov"]][[6,6]]
@@ -50,6 +50,8 @@ CCA <- function(dataset){
   dataset$UL_cost_pooled <- dataset$cost_diff + (Za*sqrt(var_cost)) # upper-limit of the 95% CI for costs
   dataset$LL_effect_pooled <- dataset$effect_diff - (Za*sqrt(var_effect)) # lower-limit of the 95% CI for QALY
   dataset$UL_effect_pooled <- dataset$effect_diff + (Za*sqrt(var_effect)) # upper-limit of the 95% CI for QALY
+  dataset$se_cost <- sqrt(var_cost)
+  dataset$se_effect <- sqrt(var_effect)
   
   dataset <- as.data.frame(dataset)
   
