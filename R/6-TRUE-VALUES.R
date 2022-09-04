@@ -38,13 +38,19 @@ SUR <- function(dataset){
   
   #5 Estimate lower and upper confidence interval limits for costs and effects 
   Za = 1.95996
-  dataset$LL_cost_pooled <- dataset$cost_diff - (Za*sqrt(var_cost)) # lower-limit of the 95% CI for costs
-  dataset$UL_cost_pooled <- dataset$cost_diff + (Za*sqrt(var_cost)) # upper-limit of the 95% CI for costs
-  dataset$LL_effect_pooled <- dataset$effect_diff - (Za*sqrt(var_effect)) # lower-limit of the 95% CI for QALY
-  dataset$UL_effect_pooled <- dataset$effect_diff + (Za*sqrt(var_effect)) # upper-limit of the 95% CI for QALY
+  dataset$LL_cost <- dataset$cost_diff - (Za*sqrt(var_cost)) # lower-limit of the 95% CI for costs
+  dataset$UL_cost <- dataset$cost_diff + (Za*sqrt(var_cost)) # upper-limit of the 95% CI for costs
+  dataset$LL_effect <- dataset$effect_diff - (Za*sqrt(var_effect)) # lower-limit of the 95% CI for QALY
+  dataset$UL_effect <- dataset$effect_diff + (Za*sqrt(var_effect)) # upper-limit of the 95% CI for QALY
   dataset$se_cost <- sqrt(var_cost)
   dataset$se_effect <- sqrt(var_effect)
-  dataset$method <- TRUE_VALUES
+  
+  #6 Add the method used as a variable to the dataset
+  dataset$method <- 'TRUE_VALUES'
+  
+  #7 Drop unnecessary variables that are not results
+  dataset <- dataset[,-(1:8)]
+  dataset <- dataset[1,]
   
   dataset <- as.data.frame(dataset)
   
@@ -54,9 +60,9 @@ sur_time <- Sys.time() #initial time
 
 sur <- lapply(data,SUR)
 
-for (i in 1:10) {
-  
-  write_xlsx(sur[[i]], paste0("C:/Users/Angela/Documents/2022-Ale-projects/project-1/data/HY_HC/TRUE_VALUES/CCA_M10_HL",i,".xlsx"))
-}
-
 Sys.time() - sur_time # total time
+
+sur.bind <-bind_rows(sur, .id = "N") # append results from all simulated datasets
+
+write_xlsx(sur.bind,"C:/Users/Angela/Documents/2022-Ale-projects/project-1/output/HY_HC_M10_TV_results.xlsx")
+

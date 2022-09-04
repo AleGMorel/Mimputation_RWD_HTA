@@ -105,33 +105,40 @@ MI.MICE <- function(dataset){
   #15 Estimate lower and upper confidence interval limits for costs and effects using Rubin's rules
   Za = 1.95996
   dataset$cost_diff <- pooled[1]
-  dataset$LL_cost_pooled <- pooled[1] - (Za*sqrt(var_pooled[1,1])) # lower-limit of the 95% CI for costs
-  dataset$UL_cost_pooled <- pooled[1] + (Za*sqrt(var_pooled[1,1])) # upper-limit of the 95% CI for costs
+  dataset$LL_cost <- pooled[1] - (Za*sqrt(var_pooled[1,1])) # lower-limit of the 95% CI for costs
+  dataset$UL_cost <- pooled[1] + (Za*sqrt(var_pooled[1,1])) # upper-limit of the 95% CI for costs
   dataset$effect_diff <- pooled[2]
-  dataset$LL_effect_pooled <- pooled[2] - (Za*sqrt(var_pooled[2,2])) # lower-limit of the 95% CI for QALY
-  dataset$UL_effect_pooled <- pooled[2] + (Za*sqrt(var_pooled[2,2])) # upper-limit of the 95% CI for QALY
+  dataset$LL_effect <- pooled[2] - (Za*sqrt(var_pooled[2,2])) # lower-limit of the 95% CI for QALY
+  dataset$UL_effect <- pooled[2] + (Za*sqrt(var_pooled[2,2])) # upper-limit of the 95% CI for QALY
   dataset$ICER <- dataset$cost_diff/dataset$effect_diff
   dataset$se_cost <- sqrt(var_pooled[1,1])
   dataset$se_effect <- sqrt(var_pooled[2,2])
-  dataset$method <- MI_MICE
+  
   
   #16 Loss of efficiency
   FMI = B/(B + W)
   LE = FMI/M
   dataset$LE_cost <- LE[1,1]
   dataset$LE_effect <- LE[2,2]
+ 
+  #17 Add the method used as a variable to the dataset
+  dataset$method <- "MI_MICE"
+
+  #18 Drop unnecessary variables that are not results
+  dataset <- dataset[,-(1:8)]
+  dataset <- dataset[1,]
   
   dataset <- as.data.frame(dataset)
   
-}
+ }
 
 mi_mice_time <- Sys.time() #initial time
 
 mi_mice <- lapply(data,MI.MICE)
 
-for (i in 1:10) {
-  
-  write_xlsx(mi_mice[[i]], paste0("C:/Users/Angela/Documents/2022-Ale-projects/project-1/data/HY_HC/MISSING10/MI_MICE/MI_MICE_M10_HL",i,".xlsx"))
-}
-
 Sys.time() - mi_mice_time # total time
+
+mi_mice.bind <-bind_rows(mi_mice, .id = "N") # append results from all simulated datasets
+
+write_xlsx(mi_mice.bind,"C:/Users/Angela/Documents/2022-Ale-projects/project-1/output/HY_HC_M10_MI_MICE_results.xlsx")
+
