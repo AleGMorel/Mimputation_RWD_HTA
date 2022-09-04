@@ -113,6 +113,7 @@ MI.MICE <- function(dataset){
   dataset$ICER <- dataset$cost_diff/dataset$effect_diff
   dataset$se_cost <- sqrt(var_pooled[1,1])
   dataset$se_effect <- sqrt(var_pooled[2,2])
+  dataset$method <- MI_MICE
   
   #16 Loss of efficiency
   FMI = B/(B + W)
