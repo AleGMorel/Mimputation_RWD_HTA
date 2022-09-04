@@ -34,20 +34,15 @@ MI.MICE <- function(dataset){
   #3 Create a customized predictor matrix
   #The variables in the columns are used to impute the row variables. 
   #The imputation model includes the confounders and predictors of missing data
-  #(i.e.., age, rom, depression) and
+  #(i.e.., rom, depression) and
   #outcome variables: Y_mw, cost_mw
   predMat <- make.predictorMatrix(dataset)
-  predMat[,] <- 0
-  predMat['Y_miss','age'] <- 1
-  predMat['cost_miss','age'] <- 1
-  predMat['Y_miss','rom'] <- 1
-  predMat['cost_miss','rom'] <- 1
-  predMat['Y_miss','depression'] <- 1
-  predMat['cost_miss','depression'] <- 1
-  predMat['Y_miss','Y_miss'] <- 1
-  predMat['Y_miss','cost_miss'] <- 1
-  predMat['cost_miss','cost_miss'] <- 1
-  predMat['cost_miss','Y_miss'] <- 1
+  predMat[,'treatment'] <- 0
+  predMat[,'age'] <- 0
+  predMat[,'leefbar'] <- 0
+  predMat[,'gender'] <- 0
+  predMat[,'Y_mw'] <- 1
+  predMat[,'cost_mw'] <- 1
   
   #4 Perform MI procedure by Tr and combine them
   imp.Tr0 <- mice(Tr0, m=5, method="pmm", predictorMatrix = predMat, seed = 1234, printFlag = FALSE)
@@ -64,8 +59,8 @@ MI.MICE <- function(dataset){
   M <- imp[["m"]]
   
   #8 Fit seemingly unrelated regressions model in each imputed dataset stored in impdata (SUR)
-  r1 <- cost_mw ~ treatment + age + rom + depression
-  r2 <- Y_mw ~ treatment + age + rom + depression
+  r1 <- cost_mw ~ treatment + rom + depression
+  r2 <- Y_mw ~ treatment + rom + depression
   sur <- lapply(impdata, function(x) {systemfit(list(costreg = r1, effectreg = r2), "SUR", data=x)})
   
   #9 Extract betas for costs and effects
