@@ -107,7 +107,7 @@ MI.MICE <- function(dataset){
   
   #14 pool within and between-imputation variances
   var_pooled <- (1 + 1/M) * B + W
-  colnames(var_pooled)  <- c("var_cost","var_effect")
+  colnames(var_pooled) <- c("var_cost","var_effect")
   
   #15 estimate lower and upper confidence interval limits for costs and effects using Rubin's rules
   Za = 1.95996 #z-score
@@ -120,7 +120,7 @@ MI.MICE <- function(dataset){
   
   #16 loss of efficiency
   FMI = B/(B + W) #fraction of missing information
-  LE = FMI/M #loss of efficiency
+  LE = FMI/M #loss of efficiency  # Ideal less than 5% 
   dataset$LE_cost <- LE[1,1]
   dataset$LE_effect <- LE[2,2]
   

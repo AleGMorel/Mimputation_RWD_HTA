@@ -185,7 +185,7 @@ HL.sd.rom.vector <-sapply(HL.sd.rom.list, mean)
 mean(HL.sd.rom.vector)
 
 #check min ROM scores across HL simulated datasets
-HL.min.rom.list <- (mclapply(sample_HY_HC,overall.min.rom))
+HL.min.rom.list <- (mclapply(HY_HC,overall.min.rom))
 HL.min.rom.vector <-sapply(HL.min.rom.list, mean)
 mean(HL.min.rom.vector)
 
@@ -350,7 +350,7 @@ ML.sd.cost.vector <-sapply(ML.sd.cost.list, mean)
 mean(ML.sd.cost.vector)
 
 #check min cost across ML simulated datasets
-ML.min.cost.list <- (mclapply(MY_MC,overall.min.cost))
+ML.min.cost.list <- (mclapply(sample_MY_MC,overall.min.cost))
 ML.min.cost.vector <-sapply(ML.min.cost.list, mean)
 mean(ML.min.cost.vector)
 
@@ -457,7 +457,7 @@ mean(ML.max.Y.vector)
 ###High level confounding simulated datasets###
 
 #check mean Y across HL simulated datasets
-HL.mean.Y.list<- (mclapply(sample_HY_HC, overall.mean.Y))
+HL.mean.Y.list<- (mclapply(HY_HC, overall.mean.Y))
 HL.mean.Y.vector <- sapply(HL.mean.Y.list, mean)
 mean(HL.mean.Y.vector)
 
@@ -475,5 +475,3 @@ mean(HL.min.Y.vector)
 HL.max.Y.list <- (mclapply(sample_HY_HC,overall.max.Y))
 HL.max.Y.vector <-sapply(HL.max.Y.list, mean)
 mean(HL.max.Y.vector)
-
-
