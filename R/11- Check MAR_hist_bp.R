@@ -3,13 +3,13 @@
 #########High level of confounding, 10 % missing data######################
 library(readxl)
 #Load dataset, with complete data and missing data columns
-M10_HL10 <- read_excel("~/HTA PhD/Missing Data Simulation/R codes/Time to Get Real/Data/HY_HC/MISSING10/M10_HL10.xlsx")
+M10_HL1 <- read_excel("~/HTA PhD/Missing Data Simulation/R codes/Time to Get Real/Data/HY_HC/MISSING10/M10_HL1.xlsx")
 
 #Defining data
-cost <- M10_HL10$cost
-cost_miss <- M10_HL10$cost_miss
-Y <- M10_HL10$Y
-Y_miss <- M10_HL10$Y_miss
+cost <- M10_HL1$cost
+cost_miss <- M10_HL1$cost_miss
+Y <- M10_HL1$Y
+Y_miss <- M10_HL1$Y_miss
 
 ####COST DATA####
 
