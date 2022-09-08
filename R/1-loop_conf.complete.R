@@ -10,6 +10,7 @@ library(readxl) #required to read the imported excel dataset
 # Medium Level (ML): difference between raw and adjusted Beta coefficients in costs and effects > 10 - <=20%
 # High Level (HL): difference between raw and adjusted Beta coefficients in costs and effects >20%
 
+#set system time 
 time <- Sys.time()
 
 #Creating lists to allocate the different datasets
