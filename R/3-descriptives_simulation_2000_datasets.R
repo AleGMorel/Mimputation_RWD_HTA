@@ -185,7 +185,7 @@ HL.sd.rom.vector <-sapply(HL.sd.rom.list, mean)
 mean(HL.sd.rom.vector)
 
 #check min ROM scores across HL simulated datasets
-HL.min.rom.list <- (mclapply(sample_HY_HC,overall.min.rom))
+HL.min.rom.list <- (mclapply(HY_HC,overall.min.rom))
 HL.min.rom.vector <-sapply(HL.min.rom.list, mean)
 mean(HL.min.rom.vector)
 
@@ -316,9 +316,8 @@ overall.max.cost <- function(ds){
 ###############################################
 ###Low level confounding simulated datasets###
 
-#check mean costacross LL simulated datasets
+#check mean costs across LL simulated datasets
 LL.mean.cost.list<- (mclapply(sample_LY_LC, overall.mean.cost))
-
 LL.mean.cost.vector <- sapply(LL.mean.cost.list, mean)
 mean(LL.mean.cost.vector)
 
@@ -450,7 +449,7 @@ ML.min.Y.vector <-sapply(ML.min.Y.list, mean)
 mean(ML.min.Y.vector)
 
 #check max Y across ML simulated datasets
-ML.max.Y.list <- (mclapply(MY_MC,overall.max.Y))
+ML.max.Y.list <- (mclapply(sample_MY_MC,overall.max.Y))
 ML.max.Y.vector <-sapply(ML.max.Y.list, mean)
 mean(ML.max.Y.vector)
 
@@ -458,7 +457,7 @@ mean(ML.max.Y.vector)
 ###High level confounding simulated datasets###
 
 #check mean Y across HL simulated datasets
-HL.mean.Y.list<- (mclapply(sample_HY_HC, overall.mean.Y))
+HL.mean.Y.list<- (mclapply(HY_HC, overall.mean.Y))
 HL.mean.Y.vector <- sapply(HL.mean.Y.list, mean)
 mean(HL.mean.Y.vector)
 
@@ -476,3 +475,59 @@ mean(HL.min.Y.vector)
 HL.max.Y.list <- (mclapply(sample_HY_HC,overall.max.Y))
 HL.max.Y.vector <-sapply(HL.max.Y.list, mean)
 mean(HL.max.Y.vector)
+
+
+#############
+###Gender ###
+
+library (dplyr)
+library(readxl)
+#For one dataset
+
+#Code for 1 dataset
+#LL1 <- read_excel("~/HTA PhD/Missing Data Simulation/R codes/Time to Get Real/Data/LY_LC/LL1.xlsx")
+#LL1%>%
+#group_by(gender)%>%
+ #count(gender)
+
+##Total observations per age category##
+cat.gender <- function(ds){
+  m.gender <- ds%>%
+    count(gender)
+}
+
+###############################################
+###Low level confounding simulated datasets###
+
+#check gender categories across LL simulated datasets
+gender.LL <- (mclapply(sample_LY_LC, cat.gender))
+gender.LL.vector <- sapply(gender.LL, mean) #from here its not working
+mean (gender.LL.vector) #not working
+
+library(trend)
+sample_LY_LC %>%
+  group_by(gender)%>%
+  summarise(Slope = list(gender(Mean)), .groups = 'drop')
+
+
+sample_LY_LC %>%
+  group_by(gender)%>%
+  summarise(gender= list(gender(Mean)), .groups = 'drop')
+
+
+gender.LL.vector <- sapply(gender.LL,) #from here its not working
+mean (gender.LL.vector)
+
+#################################################
+###Medium level confounding simulated datasets###
+
+#check gender categories across ML simulated datasets
+
+
+
+
+################################################
+###High level confounding simulated datasets###
+
+#check gender categories across HL simulated datasets
+

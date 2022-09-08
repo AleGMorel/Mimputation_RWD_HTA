@@ -30,17 +30,17 @@ CF <- function(x){
 }
 
 # check mean LL across simulated datasets
-all.LL <-(mclapply(LL, CF))
+all.LL <-(mclapply(LY_LC, CF))
 all.LL.vector <- sapply(all.LL, mean)
 summary(all.LL.vector)
 
 # check mean ML across simulated datasets
-all.ML <-(mclapply(ML, CF))
+all.ML <-(mclapply(MY_MC, CF))
 all.ML.vector <- sapply(all.ML, mean)
 summary(all.ML.vector)
 
 # check mean HL across simulated datasets
-all.HL <-(mclapply(HL, CF))
+all.HL <-(mclapply(HY_HC, CF))
 all.HL.vector <- sapply(all.HL, mean)
 summary(all.HL.vector)
 
