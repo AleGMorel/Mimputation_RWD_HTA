@@ -18,7 +18,7 @@ inv_logit <- function (x) {
   p
 } # load the inv_logit function
 
-ds<- HL1
+
 
 #####Missings in both Costs and Effects#####
 
@@ -43,7 +43,7 @@ MISSING10 <- function(ds){
   
   #check proportion of missing data
   ds$M <- as.integer(complete.cases(ds))
-  percentage_miss =  (1-(sum(ds$M)/n)) *100
+  ds$percentage_miss =  (1-(sum(ds$M)/n)) *100
   print(percentage_miss)
   #descr(ds$M) # mean represents the proportion of complete data ~90% or 10% missing  data
   
@@ -60,6 +60,8 @@ for (i in 1:20) {
 #########################################################################################################################
   ###Scenario 2: Missingness predictors differ from the confounders
 
+MISSING10 <- function(ds){
+  
   #Missingness model: confounders (ROM and depression) are NOT included in the missingness probability 
   missing_p_Y <- inv_logit(-6.5 + 0.02*ds$age + 0.02*ds$leefbar) # probability of missing in outcome
   missing_p_cost <- inv_logit(-5.5 + 0.02*ds$age + 0.02*ds$leefbar) #probability of missing in costs
